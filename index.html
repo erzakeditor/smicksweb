@@ -259,6 +259,52 @@
   .btn-nav:hover { background: rgba(126,200,255,0.08); transform: translateY(-1px); }
 
   /* ===== CONTACT DROPDOWN ===== */
+  .mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--line-hi);
+    color: var(--hi);
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .mobile-menu-btn:hover { background: rgba(126,200,255,0.08); }
+  .mobile-menu-btn svg { width: 18px; height: 18px; }
+
+  .mobile-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 32px;
+    left: 32px;
+    background: rgba(10,15,25,0.96);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--line-hi);
+    border-radius: 14px;
+    padding: 8px;
+    flex-direction: column;
+    gap: 2px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s var(--ease), transform 0.2s var(--ease), visibility 0.2s;
+    z-index: 55;
+  }
+  .mobile-menu.open {
+    display: flex;
+    opacity: 1; visibility: visible; transform: translateY(0);
+  }
+  .mobile-menu-item {
+    background: none; border: none;
+    color: var(--mid); font-family: inherit; font-size: 15px; font-weight: 500;
+    text-align: left; text-decoration: none;
+    padding: 12px 14px; border-radius: 9px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .mobile-menu-item:hover { background: rgba(126,200,255,0.08); color: var(--hi); }
+  .mobile-menu-item.active { color: var(--ice); }
+
   /* ===== VIEWS ===== */
   .view-stage {
     flex: 1;
@@ -518,8 +564,12 @@
   @media (max-width: 880px) {
     .work-grid { grid-template-columns: repeat(2, 1fr); }
     .tabs { display: none; }
+    .mobile-menu-btn { display: flex; }
     .about-center h2 { font-size: 30px; }
     .about-center .stat-row { flex-direction: column; width: 100%; }
+  }
+  @media (min-width: 881px) {
+    .mobile-menu-btn, .mobile-menu { display: none !important; }
   }
 </style>
 </head>
@@ -540,6 +590,15 @@
     <div class="tabs" id="tabs">
       <button class="tab-btn" data-view="work">Work</button>
       <button class="tab-btn" data-view="about">About</button>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="mobile-menu" id="mobileMenu">
+      <button class="mobile-menu-item" data-view="home">Home</button>
+      <button class="mobile-menu-item" data-view="work">Work</button>
+      <button class="mobile-menu-item" data-view="about">About</button>
+      <a class="mobile-menu-item" href="https://x.com/Smickssy" target="_blank" rel="noopener">Contacts</a>
     </div>
     <a class="btn-nav" href="https://x.com/Smickssy" target="_blank" rel="noopener">Contacts</a>
   </div>
@@ -702,6 +761,7 @@ function switchView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelectorAll('.mobile-menu-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === name));
   document.querySelector('.logo').classList.toggle('active', name === 'home');
   document.querySelector('.view-stage').scrollTop = 0;
   // restart entrance animations on the now-active view
@@ -711,10 +771,29 @@ function switchView(name) {
     void el.offsetWidth; // reflow to restart
     el.style.animation = '';
   });
+  // close mobile menu after navigating
+  const mm = document.getElementById('mobileMenu');
+  if (mm) mm.classList.remove('open');
 }
 document.querySelectorAll('[data-view]').forEach(el => {
   el.addEventListener('click', () => switchView(el.dataset.view));
 });
+
+// ===== MOBILE HAMBURGER MENU =====
+(function() {
+  const btn = document.getElementById('mobileMenuBtn');
+  const menu = document.getElementById('mobileMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+})();
 
 // ===== CLIENT STRIP (home) =====
 // To swap in real client photos: edit the `clients` array below.
@@ -815,7 +894,7 @@ const works = [
   {tag:"Thumbnail", name:"Thumbnail 17", image:"Thumbnail 17.jpg"},
   {tag:"Thumbnail", name:"Thumbnail 18", image:"Thumbnail 18.png"},
   {tag:"Thumbnail", name:"Thumbnail 19", image:"Thumbnail 19.png"},
-  {tag:"Thumbnail", name:"Thumbnail 20", image:"Thumbnail 20.png"},
+  {tag:"Thumbnail", name:"Thumbnail 20", image:"thumbnail 20.png"},
   {tag:"Thumbnail", name:"Thumbnail 21", image:"thumbnail 21.png"},
   {tag:"Thumbnail", name:"Thumbnail 22", image:"thumbnail 22.png"},
   {tag:"Thumbnail", name:"Thumbnail 23", image:"thumbnail 23.png"},
