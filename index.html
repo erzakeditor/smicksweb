@@ -397,18 +397,6 @@
   }
   .work-card:hover { border-color: var(--line-hi); transform: translateY(-4px); }
   .work-card svg { width: 100%; height: 100%; display: block; }
-  .work-card-tag {
-    position: absolute; top: 14px; left: 14px;
-    background: rgba(6,10,18,0.8); border: 1px solid var(--line-hi);
-    color: var(--ice); font-size: 10.5px; font-weight: 700;
-    padding: 4px 11px; border-radius: 999px; letter-spacing: 0.3px;
-    backdrop-filter: blur(8px);
-  }
-  .work-card-name {
-    position: absolute; bottom: 14px; left: 16px;
-    color: white; font-weight: 700; font-size: 15px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-  }
 
   /* ===== ABOUT VIEW ===== */
   .about-center {
@@ -492,9 +480,8 @@
     <div class="view active" id="view-home">
       <div class="showreel reveal" style="--d:0.05s">
         <div class="showreel-placeholder">
-          <!-- SHOWREEL IMAGE: replace this img src with your own thumbnail collage image -->
-          <!-- <img src="your-showreel.jpg" alt="Showreel" style="width:100%;height:100%;object-fit:cover;"> -->
-          <div class="showreel-label">DROP YOUR THUMBNAIL COLLAGE HERE</div>
+          <!-- SHOWREEL IMAGE: replace showreel.png with your own thumbnail collage image if you want to change it -->
+          <img src="showreel.png" alt="Showreel" style="width:100%;height:100%;object-fit:cover;display:block;">
         </div>
         <div class="showreel-tag">2026 SHOWREEL</div>
       </div>
@@ -660,13 +647,17 @@ const clients = [
   {name:"Royal Marines", photo:"Royal Marines.webp"},
 ];
 const track = document.getElementById('stripTrack');
-const renderSet = () => clients.map(c => {
+const renderOnce = () => clients.map(c => {
   const photoEl = c.photo
     ? `<img class="client-photo" src="${c.photo}" alt="${c.name}">`
     : `<div class="client-photo">${c.name.slice(0,2).toUpperCase()}</div>`;
   return `<div class="strip-item">${photoEl}<b>${c.name}</b></div>`;
 }).join('');
-track.innerHTML = renderSet() + renderSet();
+// Duplicate the set enough times so the track is always wider than the
+// viewport (with margin), then mirror that whole block once more — this
+// keeps the -50% looping animation seamless no matter how few clients there are.
+const minRepeats = Math.max(2, Math.ceil((window.innerWidth * 2.5) / (clients.length * 220)));
+track.innerHTML = renderOnce().repeat(minRepeats) + renderOnce().repeat(minRepeats);
 
 // drag-to-scroll on the client strip: hold and drag to fully take over
 // movement in either direction; release to resume the auto-scroll
@@ -726,11 +717,31 @@ track.innerHTML = renderSet() + renderSet();
 // To use your own thumbnail/icon images: set `image: "your-file.jpg"` on any
 // item below. Leave it null to keep the generated placeholder graphic.
 const works = [
-  {tag:"Thumbnail", name:"Voyage RNG", image:null},
-  {tag:"Thumbnail", name:"Rivals Update", image:null},
-  {tag:"Gamepass", name:"Royal Marines", image:null},
-  {tag:"Gamepass", name:"Crate Opening", image:null},
-  {tag:"Icon Pack", name:"Tech Tree UI", image:null},
+  {tag:"Thumbnail", name:"Thumbnail 1", image:"Thumbnail 1.png"},
+  {tag:"Thumbnail", name:"Thumbnail 2", image:"Thumbnail 2.png"},
+  {tag:"Thumbnail", name:"Thumbnail 3", image:"Thumbnail 3.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 4", image:"Thumbnail 4.png"},
+  {tag:"Thumbnail", name:"Thumbnail 5", image:"Thumbnail 5.png"},
+  {tag:"Thumbnail", name:"Thumbnail 6", image:"Thumbnail 6.png"},
+  {tag:"Thumbnail", name:"Thumbnail 7", image:"Thumbnail 7.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 8", image:"Thumbnail 8.png"},
+  {tag:"Thumbnail", name:"Thumbnail 9", image:"Thumbnail 9.png"},
+  {tag:"Thumbnail", name:"Thumbnail 10", image:"Thumbnail 10.png"},
+  {tag:"Thumbnail", name:"Thumbnail 12", image:"Thumbnail 12.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 13", image:"Thumbnail 13.png"},
+  {tag:"Thumbnail", name:"Thumbnail 14", image:"Thumbnail 14.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 15", image:"Thumbnail 15.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 16", image:"Thumbnail 16.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 17", image:"Thumbnail 17.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 18", image:"Thumbnail 18.png"},
+  {tag:"Thumbnail", name:"Thumbnail 19", image:"Thumbnail 19.png"},
+  {tag:"Thumbnail", name:"Thumbnail 20", image:"thumbnail 20.png"},
+  {tag:"Thumbnail", name:"Thumbnail 21", image:"thumbnail 21.png"},
+  {tag:"Thumbnail", name:"Thumbnail 22", image:"thumbnail 22.png"},
+  {tag:"Thumbnail", name:"Thumbnail 23", image:"thumbnail 23.png"},
+  {tag:"Gamepass", name:"Gamepasses 1", image:"Gamepasses 1.jpg"},
+  {tag:"Icon Pack", name:"Icon 1", image:"Icon 1.png"},
+  {tag:"Icon Pack", name:"Icon 2", image:"Icon 2.png"},
 ];
 const colors = ["#7ec8ff","#4a9eff","#bfe3ff","#2563eb"];
 function renderWork(filter) {
@@ -759,8 +770,6 @@ function renderWork(filter) {
     return `
     <div class="work-card">
       ${media}
-      <div class="work-card-tag">${w.tag}</div>
-      <div class="work-card-name">${w.name}</div>
     </div>`;
   }).join('');
 }
