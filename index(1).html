@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  CUSTOMIZATION GUIDE — everything you can swap is listed here
+  ============================================================
+
+  1) SHOWREEL IMAGE (Home tab, big banner at the top)
+     Search for: SHOWREEL IMAGE
+     Uncomment the <img> tag and set its src to your collage file.
+
+  2) CLIENT PHOTOS + NAMES (Home tab, scrolling strip at the bottom)
+     Search for: const clients = [
+     Each entry looks like: {name:"Joltfen", photo:null}
+     - Change "name" to the client's real name/handle.
+     - Set "photo" to an image URL/path to show their real picture
+       instead of the colored initials circle.
+
+  3) WORK / PORTFOLIO ITEMS (Work tab — thumbnails, gamepass icons, etc.)
+     Search for: const works = [
+     Each entry looks like: {tag:"Thumbnail", name:"Voyage RNG", image:null}
+     - "tag" controls which filter chip it shows under (Thumbnail / Gamepass / Icon Pack).
+     - "name" is the caption shown on the card.
+     - Set "image" to your actual thumbnail/icon file path to replace
+       the generated placeholder graphic.
+
+  4) CONTACT LINKS
+     - Top-right "Contacts" button: search for btn-nav, it links straight to Twitter.
+     - Footer Discord / Email links: search for footer-links.
+
+  5) ABOUT TEXT (About tab)
+     Search for: I'm Dima — edit the heading/paragraph directly in the HTML.
+
+  ============================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smicks — Roblox GFX Artist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a12;
+    --panel: #0d131f;
+    --line: rgba(255,255,255,0.07);
+    --line-hi: rgba(110,180,255,0.4);
+    --ice: #7ec8ff;
+    --ice-2: #4a9eff;
+    --ice-deep: #2563eb;
+    --glow: rgba(126,200,255,0.45);
+    --hi: #f4f8ff;
+    --mid: #93a3c0;
+    --low: #4d5a78;
+    --ease: cubic-bezier(.22,1,.36,1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+
+  @media (hover: none), (pointer: coarse) {
+    * { cursor: auto !important; }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--hi);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .cursor-dot, .cursor-ring, .cursor-picker { display: none !important; }
+  }
+
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 10001;
+    will-change: transform;
+  }
+
+  /* default core dot, color swaps per theme */
+  .cursor-dot {
+    width: 7px; height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    background: var(--cursor-color, var(--ice));
+    box-shadow: 0 0 10px var(--cursor-glow, var(--glow));
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  /* ring shows a lightsaber blade by default; rotates to point along travel */
+  .cursor-ring {
+    width: 4px;
+    height: 46px;
+    margin: -8px 0 0 -2px;
+    border-radius: 3px;
+    background: linear-gradient(to bottom, #fff, var(--cursor-color, var(--ice)) 30%, var(--cursor-color, var(--ice)) 100%);
+    box-shadow: 0 0 14px var(--cursor-glow, var(--glow)), 0 0 28px var(--cursor-glow, var(--glow));
+    transform-origin: 2px 8px;
+    opacity: 0.95;
+    transition: opacity 0.2s, background 0.25s, box-shadow 0.25s, width 0.2s, height 0.2s;
+  }
+  .cursor-ring::before {
+    /* hilt */
+    content: "";
+    position: absolute;
+    left: -1.5px;
+    top: 6px;
+    width: 7px;
+    height: 12px;
+    border-radius: 2px;
+    background: #1c1f26;
+    border: 1px solid #3a3e47;
+  }
+  .cursor-ring.is-hover {
+    height: 60px;
+    box-shadow: 0 0 20px var(--cursor-glow, var(--glow)), 0 0 40px var(--cursor-glow, var(--glow));
+  }
+  .cursor-ring.is-down { height: 40px; }
+
+  /* wojak theme: uses the user's uploaded image as the cursor */
+  body.theme-wojak .cursor-dot { opacity: 0; }
+  body.theme-wojak .cursor-ring {
+    width: 46px; height: 52px;
+    margin: -24px 0 0 -23px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    transform-origin: center center;
+    display: block;
+  }
+  body.theme-wojak .cursor-ring::before { display: none; }
+  body.theme-wojak .cursor-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("wojak.prikol.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    transition: transform 0.2s var(--ease);
+  }
+  body.theme-wojak .cursor-ring.is-hover::after { transform: scale(1.12) rotate(-4deg); }
+  body.theme-wojak .cursor-ring.is-down::after { transform: scale(0.88); }
+
+  /* boykisser theme: дві картинки — фото 1 (спокій) та фото 2 (при кліку)
+     Файли: boykisser 1.png (звичайний) і boykisser 2.png (з'являється на клік) */
+  body.theme-boykisser .cursor-dot { opacity: 0; }
+  body.theme-boykisser .cursor-ring {
+    width: 54px; height: 54px;
+    margin: -27px 0 0 -27px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    transform-origin: center center;
+    display: block;
+  }
+  body.theme-boykisser .cursor-ring::before { display: none; }
+  body.theme-boykisser .cursor-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("boykisser 1.png");   /* ◄── ФОТО 1: звичайний стан */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    transition: transform 0.12s var(--ease);
+  }
+  /* при кліку показуємо другу картинку */
+  body.theme-boykisser .cursor-ring.bk-active::after {
+    background-image: url("boykisser 2.png");   /* ◄── ФОТО 2: при натисканні */
+    transform: scale(1.1);
+  }
+  body.theme-boykisser .cursor-ring.is-hover::after { transform: scale(1.12); }
+
+  /* ===== CURSOR THEME PICKER ===== */
+  .cursor-picker {
+    position: fixed;
+    bottom: 22px; right: 22px;
+    z-index: 9998;
+    display: flex;
+    gap: 8px;
+    background: rgba(10,15,25,0.7);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px;
+  }
+  .picker-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: transform 0.2s var(--ease), border-color 0.2s;
+    background: #0d131f;
+  }
+  .picker-btn:hover { transform: translateY(-2px) scale(1.05); }
+  .picker-btn.active { border-color: #fff; }
+  .picker-btn[data-theme="green"] { background: radial-gradient(circle, #1a3d1a, #0d131f); }
+  .picker-btn[data-theme="red"] { background: radial-gradient(circle, #3d1a1a, #0d131f); }
+  .picker-btn[data-theme="blue"] { background: radial-gradient(circle, #1a2a3d, #0d131f); }
+  .picker-btn[data-theme="wojak"] {
+    background-image: url("wojak.prikol.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .picker-btn[data-theme="boykisser"] {
+    background-image: url("boykisser 1.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .picker-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .picker-btn[data-theme="green"] .picker-dot { background: #4dff7a; box-shadow: 0 0 8px #4dff7a; }
+  .picker-btn[data-theme="red"] .picker-dot { background: #ff4d4d; box-shadow: 0 0 8px #ff4d4d; }
+  .picker-btn[data-theme="blue"] .picker-dot { background: #4da6ff; box-shadow: 0 0 8px #4da6ff; }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(circle 700px at 85% -8%, rgba(74,158,255,0.16), transparent 70%),
+      radial-gradient(circle 600px at 5% 100%, rgba(37,99,235,0.12), transparent 70%);
+    pointer-events: none;
+  }
+
+  .noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 0 32px; width: 100%; }
+
+  /* ===== NAV ===== */
+  nav {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    z-index: 10;
+  }
+  .nav-inner {
+    max-width: 1180px; margin: 0 auto; padding: 22px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-weight: 700; font-size: 19px; letter-spacing: 0.3px; color: var(--hi);
+    background: none; border: none; font-family: inherit; cursor: pointer;
+    padding: 9px 14px; border-radius: 8px;
+    text-shadow: 0 0 14px rgba(126,200,255,0.35), 0 0 28px rgba(126,200,255,0.18);
+    transition: opacity 0.2s, transform 0.2s var(--ease), background 0.2s, text-shadow 0.25s;
+  }
+  .logo:hover {
+    opacity: 0.95;
+    text-shadow: 0 0 18px rgba(126,200,255,0.55), 0 0 36px rgba(126,200,255,0.3);
+  }
+  .logo.active { background: rgba(126,200,255,0.1); }
+
+  .tabs { display: flex; gap: 6px; list-style: none; }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--mid);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+  }
+  .tab-btn:hover { color: var(--hi); background: rgba(255,255,255,0.03); }
+  .tab-btn.active { color: var(--bg); background: var(--hi); font-weight: 600; }
+
+  .btn-nav {
+    background: transparent; color: var(--hi); border: 1px solid var(--line-hi);
+    padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13.5px;
+    cursor: pointer; font-family: inherit; transition: background 0.2s, transform 0.15s var(--ease);
+    text-decoration: none; display: inline-block;
+  }
+  .btn-nav:hover { background: rgba(126,200,255,0.08); transform: translateY(-1px); }
+
+  /* ===== CONTACT DROPDOWN ===== */
+  .mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--line-hi);
+    color: var(--hi);
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .mobile-menu-btn:hover { background: rgba(126,200,255,0.08); }
+  .mobile-menu-btn svg { width: 18px; height: 18px; }
+
+  .mobile-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 32px;
+    left: 32px;
+    background: rgba(10,15,25,0.96);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--line-hi);
+    border-radius: 14px;
+    padding: 8px;
+    flex-direction: column;
+    gap: 2px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s var(--ease), transform 0.2s var(--ease), visibility 0.2s;
+    z-index: 55;
+  }
+  .mobile-menu.open {
+    display: flex;
+    opacity: 1; visibility: visible; transform: translateY(0);
+  }
+  .mobile-menu-item {
+    background: none; border: none;
+    color: var(--mid); font-family: inherit; font-size: 15px; font-weight: 500;
+    text-align: left; text-decoration: none;
+    padding: 12px 14px; border-radius: 9px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .mobile-menu-item:hover { background: rgba(126,200,255,0.08); color: var(--hi); }
+  .mobile-menu-item.active { color: var(--ice); }
+
+  /* ===== VIEWS ===== */
+  .view-stage {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+  }
+  .view {
+    display: none;
+    min-height: 100%;
+    padding: 64px 0 80px;
+  }
+  .view.active { display: block; }
+  #view-home.active {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 65px); /* viewport minus nav height */
+    padding-top: 28px;
+    padding-bottom: 24px;
+  }
+
+  /* entrance animation, staggered via inline delay vars */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: revealUp 0.7s var(--ease) forwards;
+    animation-delay: var(--d, 0s);
+  }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== HOME VIEW ===== */
+  .home-kicker-center {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; letter-spacing: 2px; color: var(--ice);
+    margin: 28px 0 0;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .home-kicker-center .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--ice);
+    box-shadow: 0 0 12px var(--glow);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  /* showreel block — large image placeholder for a thumbnail collage */
+  .showreel {
+    margin: 8px auto 0;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 16/9;
+    max-height: 58vh;
+    max-width: calc(58vh * 16 / 9);
+    flex-shrink: 0;
+    transition: border-color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  }
+  .showreel:hover {
+    border-color: var(--line-hi);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px -16px rgba(0,0,0,0.55), 0 0 30px rgba(126,200,255,0.16);
+  }
+  .showreel:hover #showreelImg { transform: scale(1.02); }
+  .showreel-placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle 380px at 30% 20%, rgba(126,200,255,0.12), transparent 70%),
+      radial-gradient(circle 320px at 80% 80%, rgba(37,99,235,0.1), transparent 70%);
+  }
+  .showreel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 1.5px; color: var(--low);
+  }
+  .showreel-tag {
+    position: absolute; top: 16px; left: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px;
+    color: var(--ice);
+    border: 1px solid var(--line-hi); padding: 5px 12px; border-radius: 999px;
+    background: rgba(6,10,18,0.6); backdrop-filter: blur(6px);
+  }
+
+  /* ===== STRIP (mini, bottom of home) ===== */
+  .mini-strip {
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    margin-top: 28px;
+    overflow: hidden;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .strip-track {
+    display: flex; gap: 36px; align-items: center; width: max-content;
+    animation: scroll 26s linear infinite;
+  }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .strip-item {
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .strip-item:hover {
+    background: rgba(126,200,255,0.1);
+    border-color: var(--line-hi);
+  }
+  .strip-item:hover b { color: var(--ice); }
+  .client-photo {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ice-deep), var(--ice));
+    border: 1px solid var(--line-hi);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; color: #04101f;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .strip-item b {
+    color: var(--mid); font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px;
+    transition: color 0.2s;
+  }
+
+  /* ===== SHARED SECTION HEAD ===== */
+  .section-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 36px;
+  }
+  .section-title { font-size: 36px; font-weight: 700; color: var(--hi); letter-spacing: -0.5px; }
+  .section-sub { color: var(--mid); font-size: 14.5px; margin-top: 8px; max-width: 480px; }
+
+  /* ===== WORK VIEW ===== */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 30px; }
+  .filter-chip {
+    background: transparent; border: 1px solid var(--line);
+    color: var(--mid); font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer; transition: all 0.2s;
+  }
+  .filter-chip.active { border-color: var(--ice); color: var(--ice); background: rgba(126,200,255,0.08); }
+  .filter-chip:hover:not(.active) { border-color: var(--line-hi); color: var(--hi); }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .work-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    aspect-ratio: 16/11;
+    background: var(--panel);
+    cursor: pointer;
+    transition: border-color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  }
+  .work-card:hover {
+    border-color: var(--line-hi);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px -12px rgba(0,0,0,0.55), 0 0 24px rgba(126,200,255,0.18);
+  }
+  .work-card svg, .work-card img { width: 100%; height: 100%; display: block; transition: transform 0.4s var(--ease); }
+  .work-card:hover img { transform: scale(1.04); }
+
+  /* ===== ABOUT VIEW ===== */
+  .about-center {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 58vh;
+    justify-content: center;
+  }
+  .about-center h2 {
+    font-size: 44px; font-weight: 700; letter-spacing: -1px; line-height: 1.1;
+    margin-bottom: 22px;
+  }
+  .about-center p {
+    color: var(--mid); font-size: 16px; line-height: 1.7; margin-bottom: 36px;
+    max-width: 540px;
+  }
+  .about-center .stat-row { display: flex; gap: 16px; }
+  .stat-box {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px 32px;
+    min-width: 150px;
+    transition: border-color 0.25s, transform 0.25s var(--ease);
+  }
+  .stat-box:hover { border-color: var(--line-hi); transform: translateY(-2px); }
+  .stat-num {
+    font-size: 30px; font-weight: 700; color: var(--ice);
+    letter-spacing: -1px;
+  }
+  .stat-label { font-size: 12.5px; color: var(--low); margin-top: 4px; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--line);
+    padding: 20px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-text { font-size: 12px; color: var(--low); }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a { color: var(--low); font-size: 12px; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--ice); }
+
+  /* ===== LIGHTBOX ===== */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(4, 7, 14, 0.92);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s var(--ease), visibility 0.3s;
+  }
+  .lightbox.open { opacity: 1; visibility: visible; }
+  .lightbox-img {
+    max-width: min(100%, 1920px);
+    max-height: min(100%, 1080px);
+    width: auto;
+    height: auto;
+    border-radius: 14px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px var(--line-hi);
+    transform: scale(0.92) translateY(14px);
+    opacity: 0;
+    transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+  }
+  .lightbox.open .lightbox-img { transform: scale(1) translateY(0); opacity: 1; }
+  .lightbox-close {
+    position: absolute;
+    top: 24px; right: 28px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-hi);
+    background: rgba(13, 19, 31, 0.7);
+    color: var(--hi);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s var(--ease);
+  }
+  .lightbox-close:hover { background: rgba(126,200,255,0.12); transform: scale(1.06); }
+  .lightbox-close svg { width: 18px; height: 18px; }
+
+  @media (max-width: 880px) {
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+    .tabs { display: none; }
+    .mobile-menu-btn { display: flex; }
+    .about-center h2 { font-size: 30px; }
+    .about-center .stat-row { flex-direction: column; width: 100%; }
+  }
+  @media (min-width: 881px) {
+    .mobile-menu-btn, .mobile-menu { display: none !important; }
+  }
+</style>
+</head>
+<body class="theme-blue">
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-picker" id="cursorPicker">
+  <button class="picker-btn active" data-theme="blue" title="Blue saber"><span class="picker-dot"></span></button>
+  <button class="picker-btn" data-theme="green" title="Green saber"><span class="picker-dot"></span></button>
+  <button class="picker-btn" data-theme="red" title="Red saber"><span class="picker-dot"></span></button>
+  <button class="picker-btn" data-theme="wojak" title="Wojak"></button>
+  <button class="picker-btn" data-theme="boykisser" title="Boykisser (клікни — гіфка грає)"></button>
+</div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-inner">
+    <button class="logo active" data-view="home">Smicks</button>
+    <div class="tabs" id="tabs">
+      <button class="tab-btn" data-view="work">Work</button>
+      <button class="tab-btn" data-view="about">About</button>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="mobile-menu" id="mobileMenu">
+      <button class="mobile-menu-item" data-view="home">Home</button>
+      <button class="mobile-menu-item" data-view="work">Work</button>
+      <button class="mobile-menu-item" data-view="about">About</button>
+      <a class="mobile-menu-item" href="https://x.com/Smickssy" target="_blank" rel="noopener">Contacts</a>
+    </div>
+    <a class="btn-nav" href="https://x.com/Smickssy" target="_blank" rel="noopener">Contacts</a>
+  </div>
+</nav>
+
+<div class="view-stage">
+  <div class="wrap">
+
+    <!-- HOME -->
+    <div class="view active" id="view-home">
+      <div class="showreel reveal" style="--d:0.05s">
+        <div class="showreel-placeholder">
+          <!-- SHOWREEL IMAGE: replace showreel.png with your own thumbnail collage image if you want to change it -->
+          <img src="showreel.png" alt="Showreel" style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer;transition:transform 0.4s cubic-bezier(.22,1,.36,1);" id="showreelImg">
+        </div>
+        <div class="showreel-tag">2026 SHOWREEL</div>
+      </div>
+
+      <div class="home-kicker-center reveal" style="--d:0.18s">
+        <span class="dot"></span> COMMISSIONS OPEN
+      </div>
+
+      <div class="mini-strip reveal" style="--d:0.3s">
+        <!-- CLIENT STRIP: each .strip-item below can hold a client photo.
+             To use a real image instead of the initials circle, replace
+             <div class="client-photo"></div> with:
+             <img class="client-photo" src="client-name.jpg" alt="Client name"> -->
+        <div class="strip-track" id="stripTrack"></div>
+      </div>
+    </div>
+
+    <!-- WORK -->
+    <div class="view" id="view-work">
+      <div class="section-head reveal" style="--d:0.05s">
+        <div>
+          <div class="section-title">Recent work</div>
+          <div class="section-sub">Roblox GFX, gamepass icons & thumbnails — updated weekly</div>
+        </div>
+      </div>
+      <div class="filter-row reveal" style="--d:0.12s">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="Thumbnail">Thumbnails</button>
+        <button class="filter-chip" data-filter="Gamepass">Gamepass</button>
+        <button class="filter-chip" data-filter="Icon Pack">Icon Packs</button>
+      </div>
+      <div class="work-grid reveal" style="--d:0.18s" id="workGrid"></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="view" id="view-about">
+      <div class="about-center">
+        <h2 class="reveal" style="--d:0.12s">I'm Dima — a thumbnail<br>maker behind the screen.</h2>
+        <p class="reveal" style="--d:0.2s">I work with Blender and Photoshop to build renders that actually land — gamepass icons and backgrounds for Roblox games, and thumbnails for YouTube videos.</p>
+        <div class="stat-row reveal" style="--d:0.28s">
+          <div class="stat-box">
+            <div class="stat-num">48h</div>
+            <div class="stat-label">Average turnaround</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">30+</div>
+            <div class="stat-label">Projects delivered</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 32px;">
+    <div class="footer-text">© 2026 Smicks</div>
+    <div class="footer-links">
+      <a href="https://discord.com/users/353176502260727818" target="_blank" rel="noopener">Discord</a>
+      <a href="mailto:smicksc7343@gmail.com">Email</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== LIGHTBOX (fullscreen image viewer) ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+// ===== CUSTOM CURSOR =====
+(function() {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  const picker = document.getElementById('cursorPicker');
+  if (!dot || !ring) return;
+  if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+
+  const themes = {
+    blue:  { color: '#4da6ff', glow: 'rgba(77,166,255,0.55)' },
+    green: { color: '#4dff7a', glow: 'rgba(77,255,122,0.55)' },
+    red:   { color: '#ff4d4d', glow: 'rgba(255,77,77,0.55)' },
+    wojak: { color: '#7ec8ff', glow: 'rgba(126,200,255,0.45)' },
+    boykisser: { color: '#7ec8ff', glow: 'rgba(126,200,255,0.45)' },
+  };
+
+  function applyTheme(name) {
+    document.body.classList.remove('theme-blue','theme-green','theme-red','theme-wojak','theme-boykisser');
+    document.body.classList.add('theme-' + name);
+    const t = themes[name] || themes.blue;
+    document.documentElement.style.setProperty('--cursor-color', t.color);
+    document.documentElement.style.setProperty('--cursor-glow', t.glow);
+    picker.querySelectorAll('.picker-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === name));
+    try { localStorage.setItem('smicks-cursor-theme', name); } catch(e) {}
+  }
+
+  let saved = 'blue';
+  try { saved = localStorage.getItem('smicks-cursor-theme') || 'blue'; } catch(e) {}
+  applyTheme(saved);
+
+  picker.querySelectorAll('.picker-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+  });
+
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let rx = mx, ry = my;
+  let angle = -30;
+
+  window.addEventListener('mousemove', e => {
+    const dx = e.clientX - mx, dy = e.clientY - my;
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx}px, ${my}px)`;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+      const targetAngle = Math.atan2(dy, dx) * (180/Math.PI) + 90;
+      angle += ((targetAngle - angle + 540) % 360 - 180) * 0.15;
+    }
+  });
+
+  function loop() {
+    rx += (mx - rx) * 0.22;
+    ry += (my - ry) * 0.22;
+    const isImageCursor = document.body.classList.contains('theme-wojak')
+      || document.body.classList.contains('theme-boykisser');
+    const rot = isImageCursor ? 0 : angle;
+    ring.style.transform = `translate(${rx}px, ${ry}px) rotate(${rot}deg)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  let bkTimer = null, bkDownAt = 0;
+  document.addEventListener('mousedown', () => {
+    ring.classList.add('is-down');
+    // тема boykisser: на натискання показуємо другу фотку (boykisser 2.png)
+    if (document.body.classList.contains('theme-boykisser')) {
+      bkDownAt = Date.now();
+      clearTimeout(bkTimer);
+      ring.classList.add('bk-active');
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    ring.classList.remove('is-down');
+    // повертаємо першу фотку, але тримаємо другу хоча б ~180мс,
+    // щоб навіть дуже швидкий клік було видно
+    if (document.body.classList.contains('theme-boykisser')) {
+      const wait = Math.max(0, 180 - (Date.now() - bkDownAt));
+      clearTimeout(bkTimer);
+      bkTimer = setTimeout(() => ring.classList.remove('bk-active'), wait);
+    }
+  });
+
+  const hoverSelector = 'button, a, .work-card, .showreel, .filter-chip, .stat-box, [data-view], .lightbox-close, .lightbox-img';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverSelector)) ring.classList.add('is-hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverSelector)) ring.classList.remove('is-hover');
+  });
+})();
+
+
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelectorAll('.mobile-menu-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelector('.logo').classList.toggle('active', name === 'home');
+  document.querySelector('.view-stage').scrollTop = 0;
+  // restart entrance animations on the now-active view
+  const activeView = document.getElementById('view-' + name);
+  activeView.querySelectorAll('.reveal').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth; // reflow to restart
+    el.style.animation = '';
+  });
+  // close mobile menu after navigating
+  const mm = document.getElementById('mobileMenu');
+  if (mm) mm.classList.remove('open');
+}
+document.querySelectorAll('[data-view]').forEach(el => {
+  el.addEventListener('click', () => switchView(el.dataset.view));
+});
+
+// ===== MOBILE HAMBURGER MENU =====
+(function() {
+  const btn = document.getElementById('mobileMenuBtn');
+  const menu = document.getElementById('mobileMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+})();
+
+// ===== CLIENT STRIP (home) =====
+// To swap in real client photos: edit the `clients` array below.
+// Set `photo: "url-to-image.jpg"` and it will render as an <img> automatically.
+const clients = [
+  {name:"Braxton", photo:"Braxton.png"},
+  {name:"Jofu", photo:"jofu.jpg"},
+  {name:"Noobnity", photo:"Noobnity.jpg"},
+  {name:"Breezy", photo:"Breezy.png"},
+  {name:"Royal Marines", photo:"Royal Marines.webp"},
+];
+const track = document.getElementById('stripTrack');
+const renderOnce = () => clients.map(c => {
+  const photoEl = c.photo
+    ? `<img class="client-photo" src="${c.photo}" alt="${c.name}">`
+    : `<div class="client-photo">${c.name.slice(0,2).toUpperCase()}</div>`;
+  return `<div class="strip-item">${photoEl}<b>${c.name}</b></div>`;
+}).join('');
+// Duplicate the set enough times so the track is always wider than the
+// viewport (with margin), then mirror that whole block once more — this
+// keeps the -50% looping animation seamless no matter how few clients there are.
+const minRepeats = Math.max(2, Math.ceil((window.innerWidth * 2.5) / (clients.length * 220)));
+track.innerHTML = renderOnce().repeat(minRepeats) + renderOnce().repeat(minRepeats);
+
+// drag-to-scroll on the client strip: hold and drag to fully take over
+// movement in either direction; release to resume the auto-scroll
+(function() {
+  const wrapEl = track.parentElement; // .mini-strip
+  let isDown = false, startX = 0, dragOffset = 0, moved = false;
+
+  function currentTranslateX() {
+    const computed = getComputedStyle(track);
+    const m = /matrix\(([^)]+)\)/.exec(computed.transform);
+    return m ? parseFloat(m[1].split(',')[4]) || 0 : 0;
+  }
+
+  wrapEl.addEventListener('mousedown', e => {
+    isDown = true;
+    moved = false;
+    startX = e.clientX;
+    dragOffset = currentTranslateX();
+    // fully kill the css animation so JS has total control of transform
+    track.style.animation = 'none';
+    track.style.transform = `translateX(${dragOffset}px)`;
+    track.classList.add('is-dragging');
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!isDown) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 3) moved = true;
+    track.style.transform = `translateX(${dragOffset + dx}px)`;
+  });
+
+  function release() {
+    if (!isDown) return;
+    isDown = false;
+    track.classList.remove('is-dragging');
+    // resume the auto-scroll animation seamlessly from wherever the user left it
+    const x = currentTranslateX();
+    const trackWidth = track.scrollWidth / 2; // track content is duplicated once
+    let normalized = x % trackWidth;
+    if (normalized > 0) normalized -= trackWidth;
+    const progress = Math.abs(normalized) / trackWidth; // 0..1 through the loop
+    track.style.transform = `translateX(${normalized}px)`;
+    track.style.animation = 'none';
+    void track.offsetWidth;
+    track.style.animation = `scroll 26s linear infinite`;
+    track.style.animationDelay = `-${progress * 26}s`;
+  }
+  window.addEventListener('mouseup', release);
+  wrapEl.addEventListener('mouseleave', () => { if (isDown) release(); });
+
+  // prevent click-through (e.g. accidental link nav) right after a drag
+  wrapEl.addEventListener('click', e => { if (moved) e.preventDefault(); }, true);
+})();
+
+// ===== WORK GRID =====
+// To use your own thumbnail/icon images: set `image: "your-file.jpg"` on any
+// item below. Leave it null to keep the generated placeholder graphic.
+const works = [
+  {tag:"Thumbnail", name:"Thumbnail 1", image:"Thumbnail 1.png"},
+  {tag:"Thumbnail", name:"Thumbnail 2", image:"Thumbnail 2.png"},
+  {tag:"Thumbnail", name:"Thumbnail 3", image:"Thumbnail 3.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 4", image:"Thumbnail 4.png"},
+  {tag:"Thumbnail", name:"Thumbnail 5", image:"Thumbnail 5.png"},
+  {tag:"Thumbnail", name:"Thumbnail 6", image:"Thumbnail 6.png"},
+  {tag:"Thumbnail", name:"Thumbnail 7", image:"Thumbnail 7.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 8", image:"Thumbnail 8.png"},
+  {tag:"Thumbnail", name:"Thumbnail 9", image:"Thumbnail 9.png"},
+  {tag:"Thumbnail", name:"Thumbnail 10", image:"Thumbnail 10.png"},
+  {tag:"Thumbnail", name:"Thumbnail 12", image:"Thumbnail 12.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 13", image:"Thumbnail 13.png"},
+  {tag:"Thumbnail", name:"Thumbnail 14", image:"Thumbnail 14.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 15", image:"Thumbnail 15.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 16", image:"Thumbnail 16.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 17", image:"Thumbnail 17.jpg"},
+  {tag:"Thumbnail", name:"Thumbnail 18", image:"Thumbnail 18.png"},
+  {tag:"Thumbnail", name:"Thumbnail 19", image:"Thumbnail 19.png"},
+  {tag:"Thumbnail", name:"Thumbnail 20", image:"Thumbnail 20.png"},
+  {tag:"Thumbnail", name:"Thumbnail 21", image:"thumbnail 21.png"},
+  {tag:"Thumbnail", name:"Thumbnail 22", image:"thumbnail 22.png"},
+  {tag:"Thumbnail", name:"Thumbnail 23", image:"thumbnail 23.png"},
+  {tag:"Gamepass", name:"Gamepasses 1", image:"Gamepasses 1.jpg"},
+  {tag:"Icon Pack", name:"Icon 1", image:"Icon 1.png"},
+  {tag:"Icon Pack", name:"Icon 2", image:"Icon 2.png"},
+];
+const colors = ["#7ec8ff","#4a9eff","#bfe3ff","#2563eb"];
+function renderWork(filter) {
+  const grid = document.getElementById('workGrid');
+  const list = filter === 'all' ? works : works.filter(w => w.tag === filter);
+  grid.innerHTML = list.map((w,i) => {
+    const c1 = colors[i % colors.length];
+    const media = w.image
+      ? `<img src="${w.image}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+      : `<svg viewBox="0 0 300 206" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="wg${i}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0a0f1a"/><stop offset="100%" stop-color="#10192c"/>
+          </linearGradient>
+          <radialGradient id="wr${i}" cx="${28+i*9}%" cy="38%" r="55%">
+            <stop offset="0%" stop-color="${c1}" stop-opacity="0.4"/><stop offset="100%" stop-color="${c1}" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="300" height="206" fill="url(#wg${i})"/>
+        <rect width="300" height="206" fill="url(#wr${i})"/>
+        <g transform="translate(${95+i*14},${90+(i%3)*8}) scale(${0.85+i*0.04})">
+          <polygon points="0,-32 28,-16 28,16 0,32 -28,16 -28,-16" fill="${c1}" opacity="0.85"/>
+          <polygon points="0,-32 28,-16 0,0 -28,-16" fill="#eef9ff" opacity="0.45"/>
+        </g>
+      </svg>`;
+    const delay = Math.min(i * 0.05, 0.4);
+    return `
+    <div class="work-card reveal" style="--d:${delay}s" ${w.image ? `data-image="${w.image}"` : ''}>
+      ${media}
+    </div>`;
+  }).join('');
+}
+renderWork('all');
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    renderWork(chip.dataset.filter);
+  });
+});
+
+// ===== LIGHTBOX (fullscreen preview) =====
+(function() {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const closeBtn = document.getElementById('lightboxClose');
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.classList.add('open');
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+  }
+
+  // open from any work card that has a real image
+  document.addEventListener('click', e => {
+    const card = e.target.closest('.work-card[data-image]');
+    if (card) openLightbox(card.dataset.image, card.querySelector('img')?.alt);
+  });
+
+  // open from the showreel image
+  const showreelImg = document.getElementById('showreelImg');
+  if (showreelImg) {
+    showreelImg.addEventListener('click', () => openLightbox(showreelImg.src, 'Showreel'));
+  }
+
+  closeBtn.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+})();
+</script>
+
+</body>
+</html>
