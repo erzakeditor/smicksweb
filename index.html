@@ -741,19 +741,34 @@
     boykisser: { color: '#7ec8ff', glow: 'rgba(126,200,255,0.45)' },
   };
 
-  function applyTheme(name) {
+  function applyTheme(name, persist = true) {
     document.body.classList.remove('theme-blue','theme-green','theme-red','theme-wojak','theme-boykisser');
     document.body.classList.add('theme-' + name);
     const t = themes[name] || themes.blue;
     document.documentElement.style.setProperty('--cursor-color', t.color);
     document.documentElement.style.setProperty('--cursor-glow', t.glow);
     picker.querySelectorAll('.picker-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === name));
-    try { localStorage.setItem('smicks-cursor-theme', name); } catch(e) {}
+    // зберігаємо вибір лише коли його зробила людина вручну (persist = true).
+    // випадковий курсор не зберігаємо, щоб у нового відвідувача він знову був випадковим.
+    if (persist) {
+      try { localStorage.setItem('smicks-cursor-theme', name); } catch(e) {}
+    }
   }
 
-  let saved = 'blue';
-  try { saved = localStorage.getItem('smicks-cursor-theme') || 'blue'; } catch(e) {}
-  applyTheme(saved);
+  // набір, з якого випадково вибирається курсор для нового відвідувача.
+  // прибери звідси будь-яку назву, якщо не хочеш щоб вона випадала випадково.
+  const randomPool = ['blue','green','red','wojak','boykisser'];
+
+  // якщо людина вже сама обирала курсор — поважаємо її вибір;
+  // якщо ні (новий відвідувач) — даємо випадковий, не зберігаючи його.
+  let saved = null;
+  try { saved = localStorage.getItem('smicks-cursor-theme'); } catch(e) {}
+  if (saved && themes[saved]) {
+    applyTheme(saved);
+  } else {
+    const random = randomPool[Math.floor(Math.random() * randomPool.length)];
+    applyTheme(random, false);
+  }
 
   picker.querySelectorAll('.picker-btn').forEach(btn => {
     btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
