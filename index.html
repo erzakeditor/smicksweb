@@ -304,15 +304,17 @@
 
   /* showreel block — large image placeholder for a thumbnail collage */
   .showreel {
-    margin-top: 8px;
+    margin: 8px auto 0;
     border-radius: 18px;
     border: 1px solid var(--line);
     background: var(--panel);
     position: relative;
     overflow: hidden;
-    flex: 1 1 auto;
-    min-height: 220px;
-    max-height: 62vh;
+    width: 100%;
+    aspect-ratio: 16/9;
+    max-height: 58vh;
+    max-width: calc(58vh * 16 / 9);
+    flex-shrink: 0;
   }
   .showreel-placeholder {
     position: absolute; inset: 0;
@@ -797,10 +799,10 @@ const works = [
   {tag:"Thumbnail", name:"Thumbnail 17", image:"Thumbnail 17.jpg"},
   {tag:"Thumbnail", name:"Thumbnail 18", image:"Thumbnail 18.png"},
   {tag:"Thumbnail", name:"Thumbnail 19", image:"Thumbnail 19.png"},
-  {tag:"Thumbnail", name:"Thumbnail 20", image:"Thumbnail 20.png"},
-  {tag:"Thumbnail", name:"Thumbnail 21", image:"Thumbnail 21.png"},
-  {tag:"Thumbnail", name:"Thumbnail 22", image:"Thumbnail 22.png"},
-  {tag:"Thumbnail", name:"Thumbnail 23", image:"Thumbnail 23.png"},
+  {tag:"Thumbnail", name:"Thumbnail 20", image:"thumbnail 20.png"},
+  {tag:"Thumbnail", name:"Thumbnail 21", image:"thumbnail 21.png"},
+  {tag:"Thumbnail", name:"Thumbnail 22", image:"thumbnail 22.png"},
+  {tag:"Thumbnail", name:"Thumbnail 23", image:"thumbnail 23.png"},
   {tag:"Gamepass", name:"Gamepasses 1", image:"Gamepasses 1.jpg"},
   {tag:"Icon Pack", name:"Icon 1", image:"Icon 1.png"},
   {tag:"Icon Pack", name:"Icon 2", image:"Icon 2.png"},
