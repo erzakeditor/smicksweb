@@ -1,4 +1,37 @@
 <!DOCTYPE html>
+<!--
+  ============================================================
+  CUSTOMIZATION GUIDE — everything you can swap is listed here
+  ============================================================
+
+  1) SHOWREEL IMAGE (Home tab, big banner at the top)
+     Search for: SHOWREEL IMAGE
+     Uncomment the <img> tag and set its src to your collage file.
+
+  2) CLIENT PHOTOS + NAMES (Home tab, scrolling strip at the bottom)
+     Search for: const clients = [
+     Each entry looks like: {name:"Joltfen", photo:null}
+     - Change "name" to the client's real name/handle.
+     - Set "photo" to an image URL/path to show their real picture
+       instead of the colored initials circle.
+
+  3) WORK / PORTFOLIO ITEMS (Work tab — thumbnails, gamepass icons, etc.)
+     Search for: const works = [
+     Each entry looks like: {tag:"Thumbnail", name:"Voyage RNG", image:null}
+     - "tag" controls which filter chip it shows under (Thumbnail / Gamepass / Icon Pack).
+     - "name" is the caption shown on the card.
+     - Set "image" to your actual thumbnail/icon file path to replace
+       the generated placeholder graphic.
+
+  4) CONTACT LINKS
+     - Top-right "Contacts" button: search for btn-nav, it links straight to Twitter.
+     - Footer Discord / Email links: search for footer-links.
+
+  5) ABOUT TEXT (About tab)
+     Search for: I'm Dima — edit the heading/paragraph directly in the HTML.
+
+  ============================================================
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -620,14 +653,11 @@ document.querySelectorAll('[data-view]').forEach(el => {
 // To swap in real client photos: edit the `clients` array below.
 // Set `photo: "url-to-image.jpg"` and it will render as an <img> automatically.
 const clients = [
-  {name:"Joltfen", photo:null},
-  {name:"VoyageRNG", photo:null},
-  {name:"RivalsCO", photo:null},
-  {name:"Foltyn", photo:null},
-  {name:"NoobnityYT", photo:null},
-  {name:"BreezyBlox", photo:null},
-  {name:"Chizeled", photo:null},
-  {name:"DimaErzak", photo:null},
+  {name:"Braxton", photo:"Braxton.png"},
+  {name:"Jofu", photo:"jofu.jpg"},
+  {name:"Noobnity", photo:"Noobnity.jpg"},
+  {name:"Breezy", photo:"Breezy.png"},
+  {name:"Royal Marines", photo:"Royal Marines.webp"},
 ];
 const track = document.getElementById('stripTrack');
 const renderSet = () => clients.map(c => {
@@ -693,12 +723,14 @@ track.innerHTML = renderSet() + renderSet();
 })();
 
 // ===== WORK GRID =====
+// To use your own thumbnail/icon images: set `image: "your-file.jpg"` on any
+// item below. Leave it null to keep the generated placeholder graphic.
 const works = [
-  {tag:"Thumbnail", name:"Voyage RNG"},
-  {tag:"Thumbnail", name:"Rivals Update"},
-  {tag:"Gamepass", name:"Royal Marines"},
-  {tag:"Gamepass", name:"Crate Opening"},
-  {tag:"Icon Pack", name:"Tech Tree UI"},
+  {tag:"Thumbnail", name:"Voyage RNG", image:null},
+  {tag:"Thumbnail", name:"Rivals Update", image:null},
+  {tag:"Gamepass", name:"Royal Marines", image:null},
+  {tag:"Gamepass", name:"Crate Opening", image:null},
+  {tag:"Icon Pack", name:"Tech Tree UI", image:null},
 ];
 const colors = ["#7ec8ff","#4a9eff","#bfe3ff","#2563eb"];
 function renderWork(filter) {
@@ -706,9 +738,9 @@ function renderWork(filter) {
   const list = filter === 'all' ? works : works.filter(w => w.tag === filter);
   grid.innerHTML = list.map((w,i) => {
     const c1 = colors[i % colors.length];
-    return `
-    <div class="work-card">
-      <svg viewBox="0 0 300 206" xmlns="http://www.w3.org/2000/svg">
+    const media = w.image
+      ? `<img src="${w.image}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+      : `<svg viewBox="0 0 300 206" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="wg${i}" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="#0a0f1a"/><stop offset="100%" stop-color="#10192c"/>
@@ -723,7 +755,10 @@ function renderWork(filter) {
           <polygon points="0,-32 28,-16 28,16 0,32 -28,16 -28,-16" fill="${c1}" opacity="0.85"/>
           <polygon points="0,-32 28,-16 0,0 -28,-16" fill="#eef9ff" opacity="0.45"/>
         </g>
-      </svg>
+      </svg>`;
+    return `
+    <div class="work-card">
+      ${media}
       <div class="work-card-tag">${w.tag}</div>
       <div class="work-card-name">${w.name}</div>
     </div>`;
