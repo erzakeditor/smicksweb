@@ -150,7 +150,8 @@
   body.theme-wojak .cursor-ring.is-hover::after { transform: scale(1.12) rotate(-4deg); }
   body.theme-wojak .cursor-ring.is-down::after { transform: scale(0.88); }
 
-  /* boykisser theme: GIF-курсор, перезапускається при кліку (файл boykisser.gif) */
+  /* boykisser theme: дві картинки — фото 1 (спокій) та фото 2 (при кліку)
+     Файли: boykisser 1.png (звичайний) і boykisser 2.png (з'являється на клік) */
   body.theme-boykisser .cursor-dot { opacity: 0; }
   body.theme-boykisser .cursor-ring {
     width: 54px; height: 54px;
@@ -166,15 +167,19 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image: var(--bk-src, url("boykisser.gif"));
+    background-image: url("boykisser 1.png");   /* ◄── ФОТО 1: звичайний стан */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
-    transition: transform 0.15s var(--ease);
+    transition: transform 0.12s var(--ease);
+  }
+  /* при кліку показуємо другу картинку */
+  body.theme-boykisser .cursor-ring.bk-active::after {
+    background-image: url("boykisser 2.png");   /* ◄── ФОТО 2: при натисканні */
+    transform: scale(1.1);
   }
   body.theme-boykisser .cursor-ring.is-hover::after { transform: scale(1.12); }
-  body.theme-boykisser .cursor-ring.is-down::after { transform: scale(0.9); }
 
   /* ===== CURSOR THEME PICKER ===== */
   .cursor-picker {
@@ -211,7 +216,7 @@
     background-repeat: no-repeat;
   }
   .picker-btn[data-theme="boykisser"] {
-    background-image: url("boykisser.gif");
+    background-image: url("boykisser 1.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -779,15 +784,26 @@
   }
   loop();
 
+  let bkTimer = null, bkDownAt = 0;
   document.addEventListener('mousedown', () => {
     ring.classList.add('is-down');
-    // якщо вибрано тему boykisser — перезапускаємо гіфку з першого кадру.
-    // ?t=час змушує браузер перечитати файл, тож анімація грає заново на кожен клік.
+    // тема boykisser: на натискання показуємо другу фотку (boykisser 2.png)
     if (document.body.classList.contains('theme-boykisser')) {
-      document.documentElement.style.setProperty('--bk-src', `url("boykisser.gif?t=${Date.now()}")`);
+      bkDownAt = Date.now();
+      clearTimeout(bkTimer);
+      ring.classList.add('bk-active');
     }
   });
-  document.addEventListener('mouseup', () => ring.classList.remove('is-down'));
+  document.addEventListener('mouseup', () => {
+    ring.classList.remove('is-down');
+    // повертаємо першу фотку, але тримаємо другу хоча б ~180мс,
+    // щоб навіть дуже швидкий клік було видно
+    if (document.body.classList.contains('theme-boykisser')) {
+      const wait = Math.max(0, 180 - (Date.now() - bkDownAt));
+      clearTimeout(bkTimer);
+      bkTimer = setTimeout(() => ring.classList.remove('bk-active'), wait);
+    }
+  });
 
   const hoverSelector = 'button, a, .work-card, .showreel, .filter-chip, .stat-box, [data-view], .lightbox-close, .lightbox-img';
   document.addEventListener('mouseover', e => {
