@@ -124,7 +124,7 @@
   }
   .cursor-ring.is-down { height: 40px; }
 
-  /* wojak theme: custom drawn SVG face instead of emoji */
+  /* wojak theme: uses the user's uploaded image as the cursor */
   body.theme-wojak .cursor-dot { opacity: 0; }
   body.theme-wojak .cursor-ring {
     width: 46px; height: 52px;
@@ -140,9 +140,10 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'%3E%3Cellipse cx='50' cy='58' rx='34' ry='40' fill='none' stroke='%23000' stroke-width='3'/%3E%3Cpath d='M22 40 Q20 14 50 12 Q80 14 78 40' fill='none' stroke='%23000' stroke-width='3'/%3E%3Cpath d='M18 36 Q14 50 18 64' fill='none' stroke='%23000' stroke-width='3'/%3E%3Cpath d='M82 36 Q86 50 82 64' fill='none' stroke='%23000' stroke-width='3'/%3E%3Cpath d='M30 50 Q35 46 41 50' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M59 50 Q65 46 70 50' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'/%3E%3Cellipse cx='36' cy='58' rx='2.6' ry='3.2' fill='%23000'/%3E%3Cellipse cx='65' cy='58' rx='2.6' ry='3.2' fill='%23000'/%3E%3Cpath d='M44 70 Q50 67 56 70' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M40 84 Q50 76 60 84' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M50 60 L48 68 L52 68 Z' fill='none' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E");
+    background-image: url("wojak.prikol.png");
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
     transition: transform 0.2s var(--ease);
   }
@@ -178,8 +179,8 @@
   .picker-btn[data-theme="red"] { background: radial-gradient(circle, #3d1a1a, #0d131f); }
   .picker-btn[data-theme="blue"] { background: radial-gradient(circle, #1a2a3d, #0d131f); }
   .picker-btn[data-theme="wojak"] {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'%3E%3Cellipse cx='50' cy='58' rx='34' ry='40' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M22 40 Q20 14 50 12 Q80 14 78 40' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M30 50 Q35 46 41 50' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M59 50 Q65 46 70 50' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3Cellipse cx='36' cy='58' rx='3' ry='3.6' fill='%23fff'/%3E%3Cellipse cx='65' cy='58' rx='3' ry='3.6' fill='%23fff'/%3E%3Cpath d='M40 84 Q50 76 60 84' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-size: 60%;
+    background-image: url("wojak.prikol.png");
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
   }
@@ -299,7 +300,7 @@
     border-radius: 18px;
     border: 1px solid var(--line);
     background: var(--panel);
-    aspect-ratio: 16/7;
+    aspect-ratio: 16/9;
     position: relative;
     overflow: hidden;
   }
@@ -443,6 +444,46 @@
   .footer-links a { color: var(--low); font-size: 12px; text-decoration: none; transition: color 0.2s; }
   .footer-links a:hover { color: var(--ice); }
 
+  /* ===== LIGHTBOX ===== */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(4, 7, 14, 0.92);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s var(--ease), visibility 0.3s;
+  }
+  .lightbox.open { opacity: 1; visibility: visible; }
+  .lightbox-img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 14px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px var(--line-hi);
+    transform: scale(0.92) translateY(14px);
+    opacity: 0;
+    transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+  }
+  .lightbox.open .lightbox-img { transform: scale(1) translateY(0); opacity: 1; }
+  .lightbox-close {
+    position: absolute;
+    top: 24px; right: 28px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-hi);
+    background: rgba(13, 19, 31, 0.7);
+    color: var(--hi);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s var(--ease);
+  }
+  .lightbox-close:hover { background: rgba(126,200,255,0.12); transform: scale(1.06); }
+  .lightbox-close svg { width: 18px; height: 18px; }
+
   @media (max-width: 880px) {
     .work-grid { grid-template-columns: repeat(2, 1fr); }
     .tabs { display: none; }
@@ -481,7 +522,7 @@
       <div class="showreel reveal" style="--d:0.05s">
         <div class="showreel-placeholder">
           <!-- SHOWREEL IMAGE: replace showreel.png with your own thumbnail collage image if you want to change it -->
-          <img src="showreel.png" alt="Showreel" style="width:100%;height:100%;object-fit:cover;display:block;">
+          <img src="showreel.png" alt="Showreel" style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer;" id="showreelImg">
         </div>
         <div class="showreel-tag">2026 SHOWREEL</div>
       </div>
@@ -547,6 +588,14 @@
   </div>
 </footer>
 
+<!-- ===== LIGHTBOX (fullscreen image viewer) ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+</div>
+
 <script>
 // ===== CUSTOM CURSOR =====
 (function() {
@@ -608,7 +657,7 @@
   document.addEventListener('mousedown', () => ring.classList.add('is-down'));
   document.addEventListener('mouseup', () => ring.classList.remove('is-down'));
 
-  const hoverSelector = 'button, a, .work-card, .showreel, .filter-chip, .stat-box, [data-view]';
+  const hoverSelector = 'button, a, .work-card, .showreel, .filter-chip, .stat-box, [data-view], .lightbox-close, .lightbox-img';
   document.addEventListener('mouseover', e => {
     if (e.target.closest(hoverSelector)) ring.classList.add('is-hover');
   });
@@ -735,10 +784,10 @@ const works = [
   {tag:"Thumbnail", name:"Thumbnail 17", image:"Thumbnail 17.jpg"},
   {tag:"Thumbnail", name:"Thumbnail 18", image:"Thumbnail 18.png"},
   {tag:"Thumbnail", name:"Thumbnail 19", image:"Thumbnail 19.png"},
-  {tag:"Thumbnail", name:"Thumbnail 20", image:"thumbnail 20.png"},
-  {tag:"Thumbnail", name:"Thumbnail 21", image:"thumbnail 21.png"},
-  {tag:"Thumbnail", name:"Thumbnail 22", image:"thumbnail 22.png"},
-  {tag:"Thumbnail", name:"Thumbnail 23", image:"thumbnail 23.png"},
+  {tag:"Thumbnail", name:"Thumbnail 20", image:"Thumbnail 20.png"},
+  {tag:"Thumbnail", name:"Thumbnail 21", image:"Thumbnail 21.png"},
+  {tag:"Thumbnail", name:"Thumbnail 22", image:"Thumbnail 22.png"},
+  {tag:"Thumbnail", name:"Thumbnail 23", image:"Thumbnail 23.png"},
   {tag:"Gamepass", name:"Gamepasses 1", image:"Gamepasses 1.jpg"},
   {tag:"Icon Pack", name:"Icon 1", image:"Icon 1.png"},
   {tag:"Icon Pack", name:"Icon 2", image:"Icon 2.png"},
@@ -767,8 +816,9 @@ function renderWork(filter) {
           <polygon points="0,-32 28,-16 0,0 -28,-16" fill="#eef9ff" opacity="0.45"/>
         </g>
       </svg>`;
+    const delay = Math.min(i * 0.05, 0.4);
     return `
-    <div class="work-card">
+    <div class="work-card reveal" style="--d:${delay}s" ${w.image ? `data-image="${w.image}"` : ''}>
       ${media}
     </div>`;
   }).join('');
@@ -781,6 +831,38 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
     renderWork(chip.dataset.filter);
   });
 });
+
+// ===== LIGHTBOX (fullscreen preview) =====
+(function() {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const closeBtn = document.getElementById('lightboxClose');
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.classList.add('open');
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+  }
+
+  // open from any work card that has a real image
+  document.addEventListener('click', e => {
+    const card = e.target.closest('.work-card[data-image]');
+    if (card) openLightbox(card.dataset.image, card.querySelector('img')?.alt);
+  });
+
+  // open from the showreel image
+  const showreelImg = document.getElementById('showreelImg');
+  if (showreelImg) {
+    showreelImg.addEventListener('click', () => openLightbox(showreelImg.src, 'Showreel'));
+  }
+
+  closeBtn.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+})();
 </script>
 
 </body>
