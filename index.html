@@ -150,6 +150,32 @@
   body.theme-wojak .cursor-ring.is-hover::after { transform: scale(1.12) rotate(-4deg); }
   body.theme-wojak .cursor-ring.is-down::after { transform: scale(0.88); }
 
+  /* boykisser theme: GIF-курсор, перезапускається при кліку (файл boykisser.gif) */
+  body.theme-boykisser .cursor-dot { opacity: 0; }
+  body.theme-boykisser .cursor-ring {
+    width: 54px; height: 54px;
+    margin: -27px 0 0 -27px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    transform-origin: center center;
+    display: block;
+  }
+  body.theme-boykisser .cursor-ring::before { display: none; }
+  body.theme-boykisser .cursor-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--bk-src, url("boykisser.gif"));
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    transition: transform 0.15s var(--ease);
+  }
+  body.theme-boykisser .cursor-ring.is-hover::after { transform: scale(1.12); }
+  body.theme-boykisser .cursor-ring.is-down::after { transform: scale(0.9); }
+
   /* ===== CURSOR THEME PICKER ===== */
   .cursor-picker {
     position: fixed;
@@ -180,6 +206,12 @@
   .picker-btn[data-theme="blue"] { background: radial-gradient(circle, #1a2a3d, #0d131f); }
   .picker-btn[data-theme="wojak"] {
     background-image: url("wojak.prikol.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .picker-btn[data-theme="boykisser"] {
+    background-image: url("boykisser.gif");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -581,6 +613,7 @@
   <button class="picker-btn" data-theme="green" title="Green saber"><span class="picker-dot"></span></button>
   <button class="picker-btn" data-theme="red" title="Red saber"><span class="picker-dot"></span></button>
   <button class="picker-btn" data-theme="wojak" title="Wojak"></button>
+  <button class="picker-btn" data-theme="boykisser" title="Boykisser (клікни — гіфка грає)"></button>
 </div>
 <div class="noise"></div>
 
@@ -700,10 +733,11 @@
     green: { color: '#4dff7a', glow: 'rgba(77,255,122,0.55)' },
     red:   { color: '#ff4d4d', glow: 'rgba(255,77,77,0.55)' },
     wojak: { color: '#7ec8ff', glow: 'rgba(126,200,255,0.45)' },
+    boykisser: { color: '#7ec8ff', glow: 'rgba(126,200,255,0.45)' },
   };
 
   function applyTheme(name) {
-    document.body.classList.remove('theme-blue','theme-green','theme-red','theme-wojak');
+    document.body.classList.remove('theme-blue','theme-green','theme-red','theme-wojak','theme-boykisser');
     document.body.classList.add('theme-' + name);
     const t = themes[name] || themes.blue;
     document.documentElement.style.setProperty('--cursor-color', t.color);
@@ -737,14 +771,22 @@
   function loop() {
     rx += (mx - rx) * 0.22;
     ry += (my - ry) * 0.22;
-    const isWojak = document.body.classList.contains('theme-wojak');
-    const rot = isWojak ? 0 : angle;
+    const isImageCursor = document.body.classList.contains('theme-wojak')
+      || document.body.classList.contains('theme-boykisser');
+    const rot = isImageCursor ? 0 : angle;
     ring.style.transform = `translate(${rx}px, ${ry}px) rotate(${rot}deg)`;
     requestAnimationFrame(loop);
   }
   loop();
 
-  document.addEventListener('mousedown', () => ring.classList.add('is-down'));
+  document.addEventListener('mousedown', () => {
+    ring.classList.add('is-down');
+    // якщо вибрано тему boykisser — перезапускаємо гіфку з першого кадру.
+    // ?t=час змушує браузер перечитати файл, тож анімація грає заново на кожен клік.
+    if (document.body.classList.contains('theme-boykisser')) {
+      document.documentElement.style.setProperty('--bk-src', `url("boykisser.gif?t=${Date.now()}")`);
+    }
+  });
   document.addEventListener('mouseup', () => ring.classList.remove('is-down'));
 
   const hoverSelector = 'button, a, .work-card, .showreel, .filter-chip, .stat-box, [data-view], .lightbox-close, .lightbox-img';
