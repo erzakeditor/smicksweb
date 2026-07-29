@@ -1032,7 +1032,21 @@ const works = [
 const colors = ["#7ec8ff","#4a9eff","#bfe3ff","#2563eb"];
 function renderWork(filter) {
   const grid = document.getElementById('workGrid');
-  const list = filter === 'all' ? works : works.filter(w => w.tag === filter);
+  // Ordering:
+  //  • inside any single tab (Thumbnail / Gamepass / Icon Pack) → newest first
+  //    (newest = the item added last / lowest in the `works` array).
+  //  • in the "all" tab → thumbnails on top, then gamepasses, then icons at the
+  //    bottom — each group still counted newest → oldest.
+  // To change the "all" order, just reorder the tags in `groupOrder`.
+  let list;
+  if (filter === 'all') {
+    const groupOrder = ['Thumbnail', 'Gamepass', 'Icon Pack'];
+    list = groupOrder.flatMap(tag => works.filter(w => w.tag === tag).reverse());
+    const others = works.filter(w => !groupOrder.includes(w.tag)).reverse();
+    list = list.concat(others);
+  } else {
+    list = works.filter(w => w.tag === filter).reverse();
+  }
   grid.innerHTML = list.map((w,i) => {
     const c1 = colors[i % colors.length];
     const media = w.image
