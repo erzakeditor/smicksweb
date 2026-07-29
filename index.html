@@ -538,6 +538,19 @@
   .ab-btn.active { background: var(--ice); color: #04101f; }
   .ab-btn:hover:not(.active) { color: var(--hi); transform: translateY(-1px); }
 
+  /* stacked A/B images crossfade instead of a hard swap */
+  .work-card.is-ab .ab-img {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s var(--ease), transform 0.4s var(--ease);
+  }
+  .work-card.is-ab .ab-a { opacity: 1; }
+  .work-card.is-ab.show-b .ab-a { opacity: 0; }
+  .work-card.is-ab.show-b .ab-b { opacity: 1; }
+
   /* ===== ABOUT VIEW ===== */
   .about-center {
     max-width: 640px;
@@ -1023,7 +1036,10 @@ function renderWork(filter) {
   grid.innerHTML = list.map((w,i) => {
     const c1 = colors[i % colors.length];
     const media = w.image
-      ? `<img src="${w.image}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+      ? (w.imageB
+          ? `<img class="ab-img ab-a" src="${w.image}" alt="${w.name}">
+             <img class="ab-img ab-b" src="${w.imageB}" alt="${w.name}">`
+          : `<img src="${w.image}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;display:block;">`)
       : `<svg viewBox="0 0 300 206" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="wg${i}" x1="0" y1="0" x2="1" y2="1">
@@ -1049,7 +1065,7 @@ function renderWork(filter) {
     const abData = w.imageB ? ` data-image-a="${w.image}" data-image-b="${w.imageB}"` : '';
     const delay = Math.min(i * 0.05, 0.4);
     return `
-    <div class="work-card reveal" style="--d:${delay}s" ${w.image ? `data-image="${w.image}"` : ''}${abData}>
+    <div class="work-card reveal${w.imageB ? ' is-ab' : ''}" style="--d:${delay}s" ${w.image ? `data-image="${w.image}"` : ''}${abData}>
       ${media}
       ${abToggle}
     </div>`;
@@ -1073,12 +1089,9 @@ document.addEventListener('click', e => {
   if (!btn) return;
   const card = btn.closest('.work-card');
   if (!card) return;
-  const img = card.querySelector('img');
-  const src = btn.dataset.ab === 'b' ? card.dataset.imageB : card.dataset.imageA;
-  if (img && src) {
-    img.src = src;
-    card.dataset.image = src; // lightbox opens the variant that's currently shown
-  }
+  const showB = btn.dataset.ab === 'b';
+  card.classList.toggle('show-b', showB); // triggers the CSS crossfade
+  card.dataset.image = showB ? card.dataset.imageB : card.dataset.imageA; // lightbox opens the visible variant
   card.querySelectorAll('.ab-btn').forEach(b => b.classList.toggle('active', b === btn));
 });
 
