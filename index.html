@@ -511,6 +511,33 @@
   .work-card svg, .work-card img { width: 100%; height: 100%; display: block; transition: transform 0.4s var(--ease); }
   .work-card:hover img { transform: scale(1.04); }
 
+  /* ===== A/B VARIANT TOGGLE (shows on cards that have both image + imageB) ===== */
+  .ab-toggle {
+    position: absolute;
+    top: 10px; right: 10px;
+    z-index: 3;
+    display: flex;
+    gap: 3px;
+    background: rgba(6,10,18,0.72);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line-hi);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .ab-btn {
+    min-width: 26px; height: 24px;
+    padding: 0 6px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--mid);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    transition: background 0.2s, color 0.2s, transform 0.15s var(--ease);
+  }
+  .ab-btn.active { background: var(--ice); color: #04101f; }
+  .ab-btn:hover:not(.active) { color: var(--hi); transform: translateY(-1px); }
+
   /* ===== ABOUT VIEW ===== */
   .about-center {
     max-width: 640px;
@@ -975,6 +1002,16 @@ const works = [
   {tag:"Thumbnail", name:"Thumbnail 25", image:"thumbnail 25.png"},
   {tag:"Thumbnail", name:"Thumbnail 26", image:"thumbnail 26.png"},
   {tag:"Thumbnail", name:"Thumbnail 27", image:"thumbnail 27.png"},
+  {tag:"Thumbnail", name:"Thumbnail 28", image:"thumbnail 28.png"},
+  {tag:"Thumbnail", name:"Thumbnail 29", image:"thumbnail 29.png"},
+  {tag:"Thumbnail", name:"Thumbnail 30", image:"thumbnail 30.png"},
+  {tag:"Thumbnail", name:"Thumbnail 31", image:"thumbnail 31.png"},
+  {tag:"Thumbnail", name:"Thumbnail 32", image:"thumbnail 32.png"},
+  // ===== A/B WORKS — cards with a switchable A/B variant =====
+  // Set BOTH `image` (variant A, shown first) and `imageB` (variant B).
+  // A small A/B toggle appears on the card; click B to swap the picture.
+  {tag:"Thumbnail", name:"A/B Work 1", image:"ab 1 a.png", imageB:"ab 1 b.png"},
+  {tag:"Thumbnail", name:"A/B Work 2", image:"ab 2 a.png", imageB:"ab 2 b.png"},
   {tag:"Gamepass", name:"Gamepasses 1", image:"Gamepasses 1.jpg"},
   {tag:"Icon Pack", name:"Icon 1", image:"Icon 1.png"},
   {tag:"Icon Pack", name:"Icon 2", image:"Icon 2.png"},
@@ -1003,10 +1040,18 @@ function renderWork(filter) {
           <polygon points="0,-32 28,-16 0,0 -28,-16" fill="#eef9ff" opacity="0.45"/>
         </g>
       </svg>`;
+    const abToggle = w.imageB
+      ? `<div class="ab-toggle">
+           <button class="ab-btn active" data-ab="a">A</button>
+           <button class="ab-btn" data-ab="b">B</button>
+         </div>`
+      : '';
+    const abData = w.imageB ? ` data-image-a="${w.image}" data-image-b="${w.imageB}"` : '';
     const delay = Math.min(i * 0.05, 0.4);
     return `
-    <div class="work-card reveal" style="--d:${delay}s" ${w.image ? `data-image="${w.image}"` : ''}>
+    <div class="work-card reveal" style="--d:${delay}s" ${w.image ? `data-image="${w.image}"` : ''}${abData}>
       ${media}
+      ${abToggle}
     </div>`;
   }).join('');
 }
@@ -1017,6 +1062,24 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.classList.add('active');
     renderWork(chip.dataset.filter);
   });
+});
+
+// ===== A/B VARIANT SWAP =====
+// Cards that define both `image` (A) and `imageB` (B) get an A/B toggle.
+// Clicking a button swaps the visible picture and keeps the lightbox in sync
+// so it opens whichever variant is currently shown.
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.ab-btn');
+  if (!btn) return;
+  const card = btn.closest('.work-card');
+  if (!card) return;
+  const img = card.querySelector('img');
+  const src = btn.dataset.ab === 'b' ? card.dataset.imageB : card.dataset.imageA;
+  if (img && src) {
+    img.src = src;
+    card.dataset.image = src; // lightbox opens the variant that's currently shown
+  }
+  card.querySelectorAll('.ab-btn').forEach(b => b.classList.toggle('active', b === btn));
 });
 
 // ===== LIGHTBOX (fullscreen preview) =====
@@ -1036,6 +1099,7 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 
   // open from any work card that has a real image
   document.addEventListener('click', e => {
+    if (e.target.closest('.ab-btn')) return; // let the A/B toggle handle its own clicks
     const card = e.target.closest('.work-card[data-image]');
     if (card) openLightbox(card.dataset.image, card.querySelector('img')?.alt);
   });
