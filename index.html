@@ -1019,13 +1019,14 @@ const works = [
   {tag:"Thumbnail", name:"Thumbnail 28", image:"thumbnail 28.png"},
   {tag:"Thumbnail", name:"Thumbnail 29", image:"thumbnail 29.png"},
   {tag:"Thumbnail", name:"Thumbnail 30", image:"thumbnail 30.png"},
-  {tag:"Thumbnail", name:"Thumbnail 31", image:"thumbnail 31.png"},
-  {tag:"Thumbnail", name:"Thumbnail 32", image:"thumbnail 32.png"},
-  // ===== A/B WORKS — cards with a switchable A/B variant =====
-  // Set BOTH `image` (variant A, shown first) and `imageB` (variant B).
-  // A small A/B toggle appears on the card; click B to swap the picture.
+  // ===== A/B WORKS — cards with a switchable A/B variant (image = A, imageB = B) =====
+  // Placed here on purpose: in the grid they sit right AFTER Thumbnail 32 & 31,
+  // and any newer thumbnails you append later show up ABOVE them.
   {tag:"Thumbnail", name:"A/B Work 1", image:"ab 1 a.png", imageB:"ab 1 b.png"},
   {tag:"Thumbnail", name:"A/B Work 2", image:"ab 2 a.png", imageB:"ab 2 b.png"},
+  {tag:"Thumbnail", name:"Thumbnail 31", image:"thumbnail 31.png"},
+  {tag:"Thumbnail", name:"Thumbnail 32", image:"thumbnail 32.png"},
+  {tag:"Thumbnail", name:"Thumbnail 33", image:"thumbnail 33.png"},
   {tag:"Gamepass", name:"Gamepasses 1", image:"Gamepasses 1.jpg"},
   {tag:"Icon Pack", name:"Icon 1", image:"Icon 1.png"},
   {tag:"Icon Pack", name:"Icon 2", image:"Icon 2.png"},
@@ -1036,15 +1037,15 @@ function renderWork(filter) {
   // Ordering:
   //  • inside any single tab (Thumbnail / Gamepass / Icon Pack) → newest first
   //    (newest = the item added last / lowest in the `works` array).
-  //  • in the "all" tab → thumbnails on top, then gamepasses, then icons at the
-  //    bottom — each group still counted newest → oldest.
-  // To change the "all" order, just reorder the tags in `groupOrder`.
+  //  • in the "all" tab → thumbnails on top, then gamepasses, then icons at the bottom.
+  // Card position is driven purely by array order: lower in the `works` array =
+  // higher in the grid. To move a work, just move its line in the array.
+  // To change the "all" group order, reorder the tags in `groupOrder`.
   let list;
   if (filter === 'all') {
     const groupOrder = ['Thumbnail', 'Gamepass', 'Icon Pack'];
     list = groupOrder.flatMap(tag => works.filter(w => w.tag === tag).reverse());
-    const others = works.filter(w => !groupOrder.includes(w.tag)).reverse();
-    list = list.concat(others);
+    list = list.concat(works.filter(w => !groupOrder.includes(w.tag)).reverse());
   } else {
     list = works.filter(w => w.tag === filter).reverse();
   }
