@@ -247,16 +247,16 @@
     inset: 0;
     z-index: 0;
     background:
-      radial-gradient(circle 700px at 85% -8%, rgba(74,158,255,0.18), transparent 70%),
-      radial-gradient(circle 600px at 5% 100%, rgba(37,99,235,0.14), transparent 70%),
-      radial-gradient(circle 520px at 50% 45%, rgba(126,200,255,0.06), transparent 70%);
+      radial-gradient(circle 700px at 85% -8%, rgba(74,158,255,0.28), transparent 70%),
+      radial-gradient(circle 600px at 5% 100%, rgba(37,99,235,0.22), transparent 70%),
+      radial-gradient(circle 520px at 50% 45%, rgba(126,200,255,0.10), transparent 70%);
     pointer-events: none;
-    animation: auroraDrift 26s ease-in-out infinite alternate;
+    animation: auroraDrift 18s ease-in-out infinite alternate;
     will-change: transform;
   }
   @keyframes auroraDrift {
-    from { transform: translate3d(-1.5%, -1%, 0) scale(1.06); }
-    to   { transform: translate3d(2%, 2%, 0) scale(1.16); }
+    from { transform: translate3d(-5%, -3%, 0) scale(1.12); }
+    to   { transform: translate3d(5%, 4%, 0) scale(1.28); }
   }
   @media (prefers-reduced-motion: reduce) {
     body::before { animation: none; }
@@ -449,32 +449,6 @@
     color: var(--ice);
     border: 1px solid var(--line-hi); padding: 5px 12px; border-radius: 999px;
     background: rgba(6,10,18,0.6); backdrop-filter: blur(6px);
-  }
-
-  /* identity overlay on the showreel — tells a first-time visitor who this is */
-  .showreel-hero {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    z-index: 2;
-    padding: 26px 26px 22px;
-    background: linear-gradient(to top, rgba(4,7,14,0.88), rgba(4,7,14,0.35) 55%, transparent);
-    pointer-events: none;
-  }
-  .showreel-hero-name {
-    font-size: 32px; font-weight: 700; letter-spacing: -0.6px; color: var(--hi);
-    line-height: 1.05;
-    text-shadow: 0 2px 20px rgba(0,0,0,0.65);
-  }
-  .showreel-hero-role {
-    margin-top: 7px;
-    font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.4px;
-    color: var(--ice);
-    text-shadow: 0 2px 12px rgba(0,0,0,0.7);
-  }
-  @media (max-width: 880px) {
-    .showreel-hero { padding: 18px 18px 16px; }
-    .showreel-hero-name { font-size: 22px; }
-    .showreel-hero-role { font-size: 11px; }
   }
 
   /* ===== STRIP (mini, bottom of home) ===== */
@@ -808,10 +782,6 @@
           <img src="showreel.png" alt="Showreel" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer;transition:transform 0.4s cubic-bezier(.22,1,.36,1);" id="showreelImg">
         </div>
         <div class="showreel-tag">2026 SHOWREEL</div>
-        <div class="showreel-hero">
-          <div class="showreel-hero-name">Smicks</div>
-          <div class="showreel-hero-role">Roblox GFX Artist — thumbnails, gamepass icons &amp; UI</div>
-        </div>
       </div>
 
       <div class="home-kicker-center reveal" style="--d:0.18s">
