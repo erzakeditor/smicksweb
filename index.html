@@ -690,6 +690,8 @@
   }
   .lightbox.open { opacity: 1; visibility: visible; }
   .lightbox-img {
+    position: relative;
+    z-index: 1;
     max-width: min(100%, 1920px);
     max-height: min(100%, 1080px);
     width: auto;
@@ -703,6 +705,7 @@
   .lightbox.open .lightbox-img { transform: scale(1) translateY(0); opacity: 1; }
   .lightbox-close {
     position: absolute;
+    z-index: 2;
     top: 24px; right: 28px;
     width: 44px; height: 44px;
     border-radius: 50%;
@@ -717,6 +720,7 @@
 
   .lightbox-nav {
     position: absolute;
+    z-index: 2;
     top: 50%; transform: translateY(-50%);
     width: 52px; height: 52px;
     border-radius: 50%;
@@ -734,6 +738,7 @@
   .lightbox-next:hover { transform: translateY(-50%) translateX(3px); }
   .lightbox-counter {
     position: absolute;
+    z-index: 2;
     bottom: 26px; left: 50%; transform: translateX(-50%);
     font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 1px;
     color: var(--mid);
