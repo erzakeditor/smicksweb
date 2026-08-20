@@ -247,9 +247,19 @@
     inset: 0;
     z-index: 0;
     background:
-      radial-gradient(circle 700px at 85% -8%, rgba(74,158,255,0.16), transparent 70%),
-      radial-gradient(circle 600px at 5% 100%, rgba(37,99,235,0.12), transparent 70%);
+      radial-gradient(circle 700px at 85% -8%, rgba(74,158,255,0.18), transparent 70%),
+      radial-gradient(circle 600px at 5% 100%, rgba(37,99,235,0.14), transparent 70%),
+      radial-gradient(circle 520px at 50% 45%, rgba(126,200,255,0.06), transparent 70%);
     pointer-events: none;
+    animation: auroraDrift 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  @keyframes auroraDrift {
+    from { transform: translate3d(-1.5%, -1%, 0) scale(1.06); }
+    to   { transform: translate3d(2%, 2%, 0) scale(1.16); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body::before { animation: none; }
   }
 
   .noise {
@@ -441,6 +451,32 @@
     background: rgba(6,10,18,0.6); backdrop-filter: blur(6px);
   }
 
+  /* identity overlay on the showreel — tells a first-time visitor who this is */
+  .showreel-hero {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 2;
+    padding: 26px 26px 22px;
+    background: linear-gradient(to top, rgba(4,7,14,0.88), rgba(4,7,14,0.35) 55%, transparent);
+    pointer-events: none;
+  }
+  .showreel-hero-name {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.6px; color: var(--hi);
+    line-height: 1.05;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.65);
+  }
+  .showreel-hero-role {
+    margin-top: 7px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.4px;
+    color: var(--ice);
+    text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+  }
+  @media (max-width: 880px) {
+    .showreel-hero { padding: 18px 18px 16px; }
+    .showreel-hero-name { font-size: 22px; }
+    .showreel-hero-role { font-size: 11px; }
+  }
+
   /* ===== STRIP (mini, bottom of home) ===== */
   .mini-strip {
     border-top: 1px solid var(--line);
@@ -522,6 +558,35 @@
   }
   .work-card svg, .work-card img { width: 100%; height: 100%; display: block; transition: transform 0.4s var(--ease); }
   .work-card:hover img { transform: scale(1.04); }
+
+  /* hover affordance — subtle scrim + expand icon so it's clear the card opens fullscreen */
+  .work-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(4,7,14,0.5), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+    pointer-events: none;
+  }
+  .work-card::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    bottom: 12px; right: 12px;
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    border: 1px solid var(--line-hi);
+    background: rgba(6,10,18,0.72) center / 16px 16px no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237ec8ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E");
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+    pointer-events: none;
+  }
+  .work-card:hover::before { opacity: 1; }
+  .work-card:hover::after { opacity: 1; transform: translateY(0); }
 
   /* ===== A/B VARIANT TOGGLE (shows on cards that have both image + imageB) ===== */
   .ab-toggle {
@@ -650,6 +715,39 @@
   .lightbox-close:hover { background: rgba(126,200,255,0.12); transform: scale(1.06); }
   .lightbox-close svg { width: 18px; height: 18px; }
 
+  .lightbox-nav {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--line-hi);
+    background: rgba(13,19,31,0.7);
+    color: var(--hi);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s var(--ease);
+  }
+  .lightbox-nav svg { width: 22px; height: 22px; }
+  .lightbox-prev { left: 24px; }
+  .lightbox-next { right: 24px; }
+  .lightbox-nav:hover { background: rgba(126,200,255,0.14); }
+  .lightbox-prev:hover { transform: translateY(-50%) translateX(-3px); }
+  .lightbox-next:hover { transform: translateY(-50%) translateX(3px); }
+  .lightbox-counter {
+    position: absolute;
+    bottom: 26px; left: 50%; transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 1px;
+    color: var(--mid);
+    background: rgba(13,19,31,0.7);
+    border: 1px solid var(--line);
+    padding: 6px 14px; border-radius: 999px;
+  }
+  @media (max-width: 880px) {
+    .lightbox { padding: 40px 16px; }
+    .lightbox-nav { width: 42px; height: 42px; }
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+  }
+
   @media (max-width: 880px) {
     .work-grid { grid-template-columns: repeat(2, 1fr); }
     .tabs { display: none; }
@@ -705,6 +803,10 @@
           <img src="showreel.png" alt="Showreel" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer;transition:transform 0.4s cubic-bezier(.22,1,.36,1);" id="showreelImg">
         </div>
         <div class="showreel-tag">2026 SHOWREEL</div>
+        <div class="showreel-hero">
+          <div class="showreel-hero-name">Smicks</div>
+          <div class="showreel-hero-role">Roblox GFX Artist — thumbnails, gamepass icons &amp; UI</div>
+        </div>
       </div>
 
       <div class="home-kicker-center reveal" style="--d:0.18s">
@@ -773,6 +875,13 @@
   <button class="lightbox-close" id="lightboxClose" aria-label="Close">
     <svg viewBox="0 0 24 24" fill="none"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
   <img class="lightbox-img" id="lightboxImg" src="" alt="">
 </div>
 
@@ -1133,37 +1242,64 @@ document.addEventListener('click', e => {
   card.querySelectorAll('.ab-btn').forEach(b => b.classList.toggle('active', b === btn));
 });
 
-// ===== LIGHTBOX (fullscreen preview) =====
+// ===== LIGHTBOX (fullscreen gallery) =====
 (function() {
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
   const closeBtn = document.getElementById('lightboxClose');
+  const prevBtn = document.getElementById('lightboxPrev');
+  const nextBtn = document.getElementById('lightboxNext');
+  const counter = document.getElementById('lightboxCounter');
 
-  function openLightbox(src, alt) {
-    lightboxImg.src = src;
-    lightboxImg.alt = alt || '';
+  let gallery = [];   // [{src, alt}]
+  let idx = 0;
+
+  function show(i) {
+    if (!gallery.length) return;
+    idx = (i + gallery.length) % gallery.length; // wrap around
+    lightboxImg.src = gallery[idx].src;
+    lightboxImg.alt = gallery[idx].alt || '';
+    const multi = gallery.length > 1;
+    prevBtn.style.display = multi ? 'flex' : 'none';
+    nextBtn.style.display = multi ? 'flex' : 'none';
+    counter.style.display = multi ? 'block' : 'none';
+    counter.textContent = (idx + 1) + ' / ' + gallery.length;
+  }
+  function openGallery(items, start) {
+    gallery = items;
+    show(start);
     lightbox.classList.add('open');
   }
-  function closeLightbox() {
-    lightbox.classList.remove('open');
-  }
+  function closeLightbox() { lightbox.classList.remove('open'); }
 
-  // open from any work card that has a real image
+  // open from any work card that has a real image — builds a gallery from the
+  // cards currently on screen so you can arrow through the whole set.
   document.addEventListener('click', e => {
-    if (e.target.closest('.ab-btn')) return; // let the A/B toggle handle its own clicks
+    if (e.target.closest('.ab-btn')) return;      // A/B toggle handles its own clicks
+    if (e.target.closest('.lightbox')) return;    // clicks inside the lightbox handled below
     const card = e.target.closest('.work-card[data-image]');
-    if (card) openLightbox(card.dataset.image, card.querySelector('img')?.alt);
+    if (!card) return;
+    const cards = [...document.querySelectorAll('.work-card[data-image]')];
+    const items = cards.map(c => ({ src: c.dataset.image, alt: c.querySelector('img')?.alt || '' }));
+    openGallery(items, cards.indexOf(card));
   });
 
-  // open from the showreel image
+  // showreel opens as a single image (no navigation)
   const showreelImg = document.getElementById('showreelImg');
   if (showreelImg) {
-    showreelImg.addEventListener('click', () => openLightbox(showreelImg.src, 'Showreel'));
+    showreelImg.addEventListener('click', () => openGallery([{ src: showreelImg.src, alt: 'Showreel' }], 0));
   }
 
+  prevBtn.addEventListener('click', () => show(idx - 1));
+  nextBtn.addEventListener('click', () => show(idx + 1));
   closeBtn.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-  window.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+  window.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowLeft') show(idx - 1);
+    else if (e.key === 'ArrowRight') show(idx + 1);
+  });
 })();
 </script>
 
